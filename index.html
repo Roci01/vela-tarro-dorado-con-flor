@@ -81,7 +81,11 @@
       </select>
 
       <label>Cantidad (1–10):</label>
-      <input type="number" id="cantidad" min="1" max="10" onchange="actualizarPrecio()" />
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" onclick="cambiarCantidad(-1)" style="padding: 5px 10px;">−</button>
+        <input type="number" id="cantidad" min="1" max="10" value="1" style="text-align: center; width: 60px;" />
+        <button type="button" onclick="cambiarCantidad(1)" style="padding: 5px 10px;">+</button>
+      </div>
 
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
