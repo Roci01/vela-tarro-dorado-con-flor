@@ -65,23 +65,6 @@
       text-align: center;
       color: #000;
     }
-
-    .cantidad-control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .cantidad-control button {
-      padding: 5px 12px;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    .cantidad-control input {
-      text-align: center;
-      width: 60px;
-    }
   </style>
 </head>
 <body>
@@ -98,17 +81,13 @@
       </select>
 
       <label>Cantidad (1–10):</label>
-      <div class="cantidad-control">
-        <button type="button" onclick="cambiarCantidad(-1)">−</button>
-        <input type="number" id="cantidad" min="1" max="10" value="1" />
-        <button type="button" onclick="cambiarCantidad(1)">+</button>
-      </div>
+      <input type="number" id="cantidad" min="1" max="10" onchange="actualizarPrecio()" />
 
       <label>Tu nombre:</label>
       <input type="text" id="nombre" />
 
-      <div id="precioUnitario">💰 Precio base por unidad: 500 CUP</div>
-      <div id="precioTotal">💵 Total: 500 CUP</div>
+      <div id="precioUnitario">Precio base por unidad: 600 CUP</div>
+      <div id="precioTotal">Total: 600 CUP</div>
 
       <button type="button" class="submit-button" onclick="enviarWhatsapp()">Enviar por WhatsApp</button>
     </form>
@@ -121,56 +100,50 @@
     const precioTotalDiv = document.getElementById('precioTotal');
 
     const precioBase = 500;
-    const precioCaja = 280;
-
-    function cambiarCantidad(delta) {
-      let cantidad = parseInt(cantidadInput.value) || 1;
-      cantidad += delta;
-      if (cantidad >= 1 && cantidad <= 10) {
-        cantidadInput.value = cantidad;
-        actualizarPrecio();
-      }
-    }
+    const precioPlateada = 280;
 
     function actualizarPrecio() {
       const cantidad = parseInt(cantidadInput.value) || 1;
       const empaque = empaqueSelect.value;
 
-      const extra = (empaque === "Caja plateada") ? precioCaja : 0;
-      const total = (precioBase * cantidad) + extra;
+      let total = precioBase * cantidad;
 
-      precioUnitarioDiv.textContent = 💰 Precio base por unidad: ${precioBase} CUP;
-      precioTotalDiv.textContent = 💵 Total: ${total} CUP;
+      if (empaque === "Caja plateada") {
+        total += precioPlateada;
+      }
+
+      precioUnitarioDiv.textContent = "Precio base por unidad: " + precioBase + " CUP";
+      precioTotalDiv.textContent = "Total: " + total + " CUP";
     }
 
     function enviarWhatsapp() {
       const producto = document.getElementById('producto').value.trim();
-      const cantidad = parseInt(cantidadInput.value.trim());
+      const cantidad = parseInt(document.getElementById('cantidad').value.trim());
       const nombre = document.getElementById('nombre').value.trim();
-      const empaque = empaqueSelect.value;
-
-      if (!nombre) {
-        alert("Por favor, escribe tu nombre.");
-        return;
-      }
+      const empaque = empaqueSelect.value.trim();
 
       if (!cantidad || cantidad < 1 || cantidad > 10) {
-        alert("Por favor, elige una cantidad válida (1 a 10).");
+        alert("Ingresa una cantidad válida (1 a 10).");
         return;
       }
 
-      const extra = (empaque === "Caja plateada") ? precioCaja : 0;
-      const total = (precioBase * cantidad) + extra;
+      if (!nombre) {
+        alert("Ingresa tu nombre.");
+        return;
+      }
 
-      const mensaje = Hola, quiero hacer un pedido de velas:\n\n
-        + 🕯️ Producto: ${producto}\n
-        + 🎁 Empaque: ${empaque}\n
-        + 🔢 Cantidad: ${cantidad}\n
-        + 👤 Nombre: ${nombre}\n
-        + 💰 Precio por unidad: ${precioBase} CUP\n
-        + 💵 Total a pagar: ${total} CUP;
+      let total = precioBase * cantidad;
+      if (empaque === "Caja plateada") total += precioPlateada;
 
-      const url = https://wa.me/53810462?text=${encodeURIComponent(mensaje)};
+      const mensaje = "Hola, quiero hacer un pedido de velas:\n\n"
+        + "🕯️ Producto: " + producto + "\n"
+        + "🎁 Empaque: " + empaque + "\n"
+        + "🔢 Cantidad: " + cantidad + "\n"
+        + "👤 Nombre: " + nombre + "\n"
+        + "💰 Precio por unidad: " + precioBase + " CUP\n"
+        + "💵 Total a pagar: " + total + " CUP";
+
+      const url = "https://wa.me/53810462?text=" + encodeURIComponent(mensaje);
       window.open(url, "_blank");
     }
 
